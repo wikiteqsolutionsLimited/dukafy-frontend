@@ -10,7 +10,7 @@ const TermsPage = () => (
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-md transition-transform duration-300 group-hover:scale-110">
             <Store className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-black tracking-tight text-foreground">DukaFlo</span>
+          <span className="text-lg font-black tracking-tight text-foreground">DukaFy</span>
         </Link>
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Home
@@ -25,12 +25,12 @@ const TermsPage = () => (
       <div className="mt-12 space-y-10 text-sm leading-relaxed text-muted-foreground">
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">1. Acceptance of Terms</h2>
-          <p>By accessing or using DukaFlo ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service. These terms apply to all users, including administrators, managers, and cashiers.</p>
+          <p>By accessing or using DukaFy ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service. These terms apply to all users, including administrators, managers, and cashiers.</p>
         </section>
 
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">2. Description of Service</h2>
-          <p>DukaFlo is a point-of-sale and business management platform designed for retail businesses in Kenya. The Service includes inventory management, sales processing, customer relationship management, M-Pesa payment integration, reporting and analytics, and staff management tools.</p>
+          <p>DukaFy is a point-of-sale and business management platform designed for retail businesses in Kenya. The Service includes inventory management, sales processing, customer relationship management, M-Pesa payment integration, reporting and analytics, and staff management tools.</p>
         </section>
 
         <section>
@@ -65,7 +65,7 @@ const TermsPage = () => (
 
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">9. Limitation of Liability</h2>
-          <p>To the maximum extent permitted by law, DukaFlo shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or business opportunities, arising from your use of the Service.</p>
+          <p>To the maximum extent permitted by law, DukaFy shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or business opportunities, arising from your use of the Service.</p>
         </section>
 
         <section>
@@ -80,14 +80,14 @@ const TermsPage = () => (
 
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">12. Contact</h2>
-          <p>For questions about these terms, contact us at <a href="mailto:legal@dukaflo.co.ke" className="font-medium text-primary hover:underline">legal@dukaflo.co.ke</a>.</p>
+          <p>For questions about these terms, contact us at <a href="mailto:legal@dukafy.co.ke" className="font-medium text-primary hover:underline">legal@dukafy.co.ke</a>.</p>
         </section>
       </div>
     </div>
 
     <footer className="border-t bg-card py-8">
       <div className="mx-auto max-w-4xl px-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        <p className="text-xs text-muted-foreground">© 2026 DukaFlo. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 DukaFy. All rights reserved.</p>
         <div className="flex gap-4">
           <Link to="/terms" className="text-xs font-medium text-foreground">Terms</Link>
           <Link to="/privacy" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Privacy</Link>

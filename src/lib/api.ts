@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://dukaflow.wikiteq.co.ke/api";
+  import.meta.env.VITE_API_URL || "https://dukafyw.wikiteq.co.ke/api";
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -276,6 +276,7 @@ export const shopsApi = {
   getMembers: (id: number) => api.get(`/shops/${id}/members`),
   addMember: (id: number, user_id: number, role: string) => api.post(`/shops/${id}/members`, { user_id, role }),
   removeMember: (shopId: number, userId: number) => api.delete(`/shops/${shopId}/members/${userId}`),
+  inviteMember: (id: number, data: { email: string; role: string }) => api.post(`/shops/${id}/invite`, data),
 };
 
 // ── Subscriptions API ──

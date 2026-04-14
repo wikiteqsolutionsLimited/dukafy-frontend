@@ -34,17 +34,17 @@ const stats = [
 ];
 
 const testimonials = [
-  { name: "Sarah Kimani", role: "Retail Store Owner, Nairobi", text: "DukaFlo transformed how we run our store. Checkout is 10x faster and M-Pesa integration just works perfectly.", stars: 5, avatar: "SK" },
+  { name: "Sarah Kimani", role: "Retail Store Owner, Nairobi", text: "DukaFy transformed how we run our store. Checkout is 10x faster and M-Pesa integration just works perfectly.", stars: 5, avatar: "SK" },
   { name: "James Mwangi", role: "Franchise Manager, Mombasa", text: "The analytics alone saved us thousands. We finally understand our margins and can make data-driven decisions.", stars: 5, avatar: "JM" },
   { name: "Amara Ochieng", role: "Boutique Owner, Kisumu", text: "Beautiful interface, easy to train staff. The best POS system we've ever used. Absolutely love it!", stars: 5, avatar: "AO" },
 ];
 
 const faqs = [
-  { q: "What is DukaFlo?", a: "DukaFlo is an all-in-one point of sale and business management platform designed specifically for Kenyan retailers. It includes POS, inventory management, M-Pesa payments, analytics, customer CRM, and more." },
-  { q: "How much does DukaFlo cost?", a: "DukaFlo offers 4 plans: Basic (KES 500/mo, 1 shop), Starter (KES 1,000/mo, up to 3 shops), Pro (KES 2,000/mo, up to 5 shops), and Enterprise (custom pricing). All plans start with a 30-day free trial." },
-  { q: "Does DukaFlo support M-Pesa?", a: "Yes! DukaFlo has built-in M-Pesa integration with STK Push and C2B payments. Your customers can pay via M-Pesa directly at checkout with instant confirmation." },
-  { q: "Can I use DukaFlo on my phone?", a: "Absolutely. DukaFlo is fully responsive and works on any device — desktop, tablet, or smartphone. No app download required, it runs in your browser." },
-  { q: "Is my data secure?", a: "Yes. DukaFlo uses bank-grade encryption, role-based access controls, audit logging, and automated backups. Your data is stored securely with 99.9% uptime guarantee." },
+  { q: "What is DukaFy?", a: "DukaFy is an all-in-one point of sale and business management platform designed specifically for Kenyan retailers. It includes POS, inventory management, M-Pesa payments, analytics, customer CRM, and more." },
+  { q: "How much does DukaFy cost?", a: "DukaFy offers 4 plans: Basic (KES 500/mo, 1 shop), Starter (KES 1,000/mo, up to 3 shops), Pro (KES 2,000/mo, up to 5 shops), and Enterprise (custom pricing). All plans start with a 30-day free trial." },
+  { q: "Does DukaFy support M-Pesa?", a: "Yes! DukaFy has built-in M-Pesa integration with STK Push and C2B payments. Your customers can pay via M-Pesa directly at checkout with instant confirmation." },
+  { q: "Can I use DukaFy on my phone?", a: "Absolutely. DukaFy is fully responsive and works on any device — desktop, tablet, or smartphone. No app download required, it runs in your browser." },
+  { q: "Is my data secure?", a: "Yes. DukaFy uses bank-grade encryption, role-based access controls, audit logging, and automated backups. Your data is stored securely with 99.9% uptime guarantee." },
   { q: "Can I manage multiple shops?", a: "Yes, the Pro plan includes multi-store support. You can manage all your locations from a single dashboard with separate inventory and reporting per store." },
 ];
 
@@ -139,7 +139,7 @@ const LandingPage = () => {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
               <Store className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-black tracking-tight text-foreground">DukaFlo</span>
+            <span className="text-lg font-black tracking-tight text-foreground">DukaFy</span>
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             {navItems.map((item) => (
@@ -295,7 +295,7 @@ const LandingPage = () => {
                     <div className="h-3 w-3 rounded-full bg-success/60" />
                   </div>
                   <div className="mx-auto flex h-7 w-72 items-center justify-center rounded-lg bg-muted/50 text-xs text-muted-foreground">
-                    app.dukaflo.co.ke/dashboard
+                    app.dukafy.co.ke/dashboard
                   </div>
                 </div>
                 {/* Dashboard mockup */}
@@ -353,7 +353,7 @@ const LandingPage = () => {
                 Everything You Need
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                From lightning-fast checkout to deep analytics — DukaFlo has you covered.
+                From lightning-fast checkout to deep analytics — DukaFy has you covered.
               </p>
             </div>
           </AnimatedSection>
@@ -420,7 +420,7 @@ const LandingPage = () => {
         <div className="relative mx-auto max-w-7xl px-6">
           <AnimatedSection>
             <div className="mx-auto max-w-2xl text-center">
-              <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">Why DukaFlo</span>
+              <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">Why DukaFy</span>
               <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-5xl">
                 Why Shop Owners Choose Us
               </h2>
@@ -531,7 +531,7 @@ const LandingPage = () => {
                       </li>
                     ))}
                   </ul>
-                  <Link to={plan.price === "Custom" ? "mailto:hello@dukaflo.co.ke" : "/register"} className={`mt-7 flex h-12 w-full items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-all duration-300 hover:shadow-md ${
+                  <Link to={plan.price === "Custom" ? "mailto:hello@dukafy.co.ke" : "/register"} className={`mt-7 flex h-12 w-full items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-all duration-300 hover:shadow-md ${
                     plan.popular
                       ? "bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/25"
                       : "border bg-card text-card-foreground hover:bg-muted"
@@ -556,7 +556,7 @@ const LandingPage = () => {
                 Frequently Asked Questions
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Everything you need to know about DukaFlo.
+                Everything you need to know about DukaFy.
               </p>
             </div>
           </AnimatedSection>
@@ -588,7 +588,7 @@ const LandingPage = () => {
               <br />Your Shop?
             </h2>
             <p className="mx-auto mt-6 max-w-lg text-lg text-primary-foreground/70 leading-relaxed">
-              Join thousands of shop owners across Kenya who switched to DukaFlo for faster sales, better insights, and happier customers.
+              Join thousands of shop owners across Kenya who switched to DukaFy for faster sales, better insights, and happier customers.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link to="/login" className="group inline-flex h-13 items-center gap-2.5 rounded-2xl bg-card px-8 py-3.5 text-sm font-bold text-card-foreground shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]">
@@ -611,7 +611,7 @@ const LandingPage = () => {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm">
                   <Store className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-black text-foreground">DukaFlo</span>
+                <span className="text-lg font-black text-foreground">DukaFy</span>
               </div>
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
                 The modern POS system built for Kenyan businesses. Manage your shop smarter with real-time analytics and M-Pesa integration.
@@ -632,12 +632,12 @@ const LandingPage = () => {
               <ul className="mt-4 space-y-2.5">
                 <li><Link to="/terms" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Terms of Service</Link></li>
                 <li><Link to="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Privacy Policy</Link></li>
-                <li><a href="mailto:support@dukaflo.co.ke" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Contact</a></li>
+                <li><a href="mailto:support@dukafy.co.ke" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Contact</a></li>
               </ul>
             </div>
           </div>
           <div className="mt-12 flex flex-col items-center gap-4 border-t pt-8 sm:flex-row sm:justify-between">
-            <p className="text-xs text-muted-foreground">© 2026 DukaFlo. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 DukaFy. All rights reserved.</p>
             <div className="flex gap-4">
               <Link to="/terms" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Terms</Link>
               <Link to="/privacy" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Privacy</Link>

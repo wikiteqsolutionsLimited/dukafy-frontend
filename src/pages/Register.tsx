@@ -75,7 +75,7 @@ const RegisterPage = () => {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
             <Store className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-white tracking-tight">DukaFlo</span>
+          <span className="text-lg font-bold text-white tracking-tight">DukaFy</span>
         </div>
 
         <div className="relative -mt-8">
@@ -98,7 +98,7 @@ const RegisterPage = () => {
         </div>
 
         <p className="relative text-xs text-white/40">
-          © 2026 DukaFlo. All rights reserved.
+          © 2026 DukaFy. All rights reserved.
         </p>
       </div>
 
@@ -109,7 +109,7 @@ const RegisterPage = () => {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg">
               <Store className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">DukaFlo</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">DukaFy</span>
           </div>
 
           <div className="rounded-2xl border bg-card p-8 shadow-sm">

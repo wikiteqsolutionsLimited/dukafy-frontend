@@ -21,6 +21,8 @@ interface ShopContextType {
   activeShop: Shop | null;
   isLoading: boolean;
   isSetupComplete: boolean;
+  isOwner: boolean;
+  canSwitchShops: boolean;
   switchShop: (shopId: number) => void;
   refresh: () => Promise<void>;
 }
@@ -68,9 +70,11 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   }, [shops]);
 
   const isSetupComplete = !!activeShop?.is_setup_complete;
+  const isOwner = !!activeShop && activeShop.member_role === "admin";
+  const canSwitchShops = shops.filter(s => s.member_role === "admin").length > 1;
 
   return (
-    <ShopContext.Provider value={{ shops, activeShop, isLoading, isSetupComplete, switchShop, refresh }}>
+    <ShopContext.Provider value={{ shops, activeShop, isLoading, isSetupComplete, isOwner, canSwitchShops, switchShop, refresh }}>
       {children}
     </ShopContext.Provider>
   );
