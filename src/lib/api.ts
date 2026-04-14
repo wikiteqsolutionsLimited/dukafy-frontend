@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://dukafy.wikiteq.co.ke/api";
+  import.meta.env.VITE_API_URL || "https://dukaflow.wikiteq.co.ke/api";
 
 interface ApiResponse<T = any> {
   success: boolean;
