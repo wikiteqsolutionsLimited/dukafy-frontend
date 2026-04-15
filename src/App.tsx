@@ -36,7 +36,10 @@ import TermsPage from "./pages/Terms";
 import PrivacyPage from "./pages/Privacy";
 import BillingPage from "./pages/Billing";
 import ProfilePage from "./pages/Profile";
+<<<<<<< HEAD
 import SupportPage from "./pages/Support";
+=======
+>>>>>>> 8831112745dcd872c38f301c814f6d1906d0b0b2
 // Admin pages
 import AdminLoginPage from "./pages/admin/AdminLogin";
 import AdminDashboardPage from "./pages/admin/AdminDashboard";
@@ -96,7 +99,10 @@ const App = () => (
                   <Route path="/activity-logs" element={<ActivityLogsPage />} />
                   <Route path="/billing" element={<BillingPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+<<<<<<< HEAD
                   <Route path="/support" element={<SupportPage />} />
+=======
+>>>>>>> 8831112745dcd872c38f301c814f6d1906d0b0b2
                 </Route>
                 {/* Admin Portal */}
                 <Route path="/dukafy-admin/login" element={<AdminLoginPage />} />

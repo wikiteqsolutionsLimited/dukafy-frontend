@@ -263,13 +263,19 @@ export const auditLogsApi = {
 
 // ── M-Pesa API ──
 export const mpesaApi = {
-  stkPush: (data: { phone: string; amount: number; accountReference?: string }) => api.post("/mpesa/stk-push", data),
-  stkQuery: (checkoutRequestID: string) => api.post("/mpesa/stk-query", { checkoutRequestID }),
+  stkPush: (data: {
+    phone: string;
+    amount: number;
+    accountReference?: string;
+  }) => api.post("/mpesa/stk-push", data),
+  stkQuery: (checkoutRequestID: string) =>
+    api.post("/mpesa/stk-query", { checkoutRequestID }),
 };
 
 // ── Notifications API ──
 export const notificationsApi = {
-  getAll: (params?: { page?: number; limit?: number; unread_only?: string }) => api.get("/notifications", params),
+  getAll: (params?: { page?: number; limit?: number; unread_only?: string }) =>
+    api.get("/notifications", params),
   getUnreadCount: () => api.get("/notifications/unread-count"),
   markRead: (id: number) => api.patch(`/notifications/${id}/read`),
   markAllRead: () => api.patch("/notifications/read-all"),
@@ -289,9 +295,18 @@ export const shopsApi = {
   create: (data: any) => api.post("/shops", data),
   update: (id: number, data: any) => api.put(`/shops/${id}`, data),
   getMembers: (id: number) => api.get(`/shops/${id}/members`),
+<<<<<<< HEAD
   addMember: (id: number, user_id: number, role: string) => api.post(`/shops/${id}/members`, { user_id, role }),
   removeMember: (shopId: number, userId: number) => api.delete(`/shops/${shopId}/members/${userId}`),
   inviteMember: (id: number, data: { email: string; role: string }) => api.post(`/shops/${id}/invite`, data),
+=======
+  addMember: (id: number, user_id: number, role: string) =>
+    api.post(`/shops/${id}/members`, { user_id, role }),
+  removeMember: (shopId: number, userId: number) =>
+    api.delete(`/shops/${shopId}/members/${userId}`),
+  inviteMember: (id: number, data: { email: string; role: string }) =>
+    api.post(`/shops/${id}/invite`, data),
+>>>>>>> 8831112745dcd872c38f301c814f6d1906d0b0b2
 };
 
 // ── Subscriptions API ──
@@ -299,8 +314,10 @@ export const subscriptionsApi = {
   getMy: () => api.get("/subscriptions/me"),
   getPlans: () => api.get("/subscriptions/plans"),
   renew: (plan_id: string) => api.post("/subscriptions/renew", { plan_id }),
-  initiatePayment: (data: { plan_id: string; phone: string }) => api.post("/subscriptions/initiate-payment", data),
-  confirmPayment: (data: { checkout_request_id: string; plan_id: string }) => api.post("/subscriptions/confirm-payment", data),
+  initiatePayment: (data: { plan_id: string; phone: string }) =>
+    api.post("/subscriptions/initiate-payment", data),
+  confirmPayment: (data: { checkout_request_id: string; plan_id: string }) =>
+    api.post("/subscriptions/confirm-payment", data),
 };
 
 // ── Support Tickets API (Shop owner side) ──
