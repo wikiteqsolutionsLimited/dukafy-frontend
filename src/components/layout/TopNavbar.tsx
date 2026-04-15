@@ -195,7 +195,7 @@ export function TopNavbar() {
               <Store className="h-4.5 w-4.5 text-primary-foreground" />
             </div>
             <span className="hidden text-base font-bold tracking-tight text-foreground sm:inline">
-              DukaFlo
+              DukaFy
             </span>
           </NavLink>
           <button
@@ -237,53 +237,55 @@ export function TopNavbar() {
 
         {/* Right: Shop switcher + Notifications + Profile + Hamburger */}
         <div className="flex items-center gap-1.5">
-          {/* Shop switcher */}
-          <div ref={shopRef} className="relative hidden sm:block">
-            <button
-              onClick={() => setShopOpen((o) => !o)}
-              className="flex h-8 items-center gap-1.5 rounded-lg border bg-muted/50 px-2.5 text-xs font-medium text-foreground transition-all duration-200 hover:bg-muted"
-            >
-              <Store className="h-3.5 w-3.5 text-primary" />
-              <span className="max-w-[120px] truncate">{activeShop?.name || "Select Shop"}</span>
-              <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform duration-200", shopOpen && "rotate-180")} />
-            </button>
-            {shopOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-[250px] rounded-xl border bg-card shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="border-b px-3.5 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Switch shop</p>
-                </div>
-                <div className="py-1">
-                  {shops.map((shop) => (
+          {/* Shop switcher — only for admins with multiple shops */}
+          {shops.filter(s => s.member_role === "admin").length > 0 && (
+            <div ref={shopRef} className="relative hidden sm:block">
+              <button
+                onClick={() => setShopOpen((o) => !o)}
+                className="flex h-8 items-center gap-1.5 rounded-lg border bg-muted/50 px-2.5 text-xs font-medium text-foreground transition-all duration-200 hover:bg-muted"
+              >
+                <Store className="h-3.5 w-3.5 text-primary" />
+                <span className="max-w-[120px] truncate">{activeShop?.name || "Select Shop"}</span>
+                <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform duration-200", shopOpen && "rotate-180")} />
+              </button>
+              {shopOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-[250px] rounded-xl border bg-card shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="border-b px-3.5 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Switch shop</p>
+                  </div>
+                  <div className="py-1">
+                    {shops.filter(s => s.member_role === "admin").map((shop) => (
+                      <button
+                        key={shop.id}
+                        onClick={() => { switchShop(shop.id); setShopOpen(false); }}
+                        className={cn(
+                          "flex w-full items-start gap-2.5 px-3.5 py-2 text-left transition-colors hover:bg-muted",
+                          activeShop && shop.id === activeShop.id && "bg-accent/50"
+                        )}
+                      >
+                        <Store className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", activeShop && shop.id === activeShop.id ? "text-primary" : "text-muted-foreground")} />
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("text-xs truncate", activeShop && shop.id === activeShop.id ? "font-semibold text-card-foreground" : "font-medium text-muted-foreground")}>{shop.name}</p>
+                          <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                            <MapPin className="h-2.5 w-2.5" />{shop.address || "No address"}
+                          </p>
+                        </div>
+                        {activeShop && shop.id === activeShop.id && <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" />}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="border-t px-3.5 py-2">
                     <button
-                      key={shop.id}
-                      onClick={() => { switchShop(shop.id); setShopOpen(false); }}
-                      className={cn(
-                        "flex w-full items-start gap-2.5 px-3.5 py-2 text-left transition-colors hover:bg-muted",
-                        activeShop && shop.id === activeShop.id && "bg-accent/50"
-                      )}
+                      onClick={() => { setShopOpen(false); void handleAddShop(); }}
+                      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/5"
                     >
-                      <Store className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", activeShop && shop.id === activeShop.id ? "text-primary" : "text-muted-foreground")} />
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("text-xs truncate", activeShop && shop.id === activeShop.id ? "font-semibold text-card-foreground" : "font-medium text-muted-foreground")}>{shop.name}</p>
-                        <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-                          <MapPin className="h-2.5 w-2.5" />{shop.address || "No address"}
-                        </p>
-                      </div>
-                      {activeShop && shop.id === activeShop.id && <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" />}
+                      <Plus className="h-3.5 w-3.5" /> Add New Shop
                     </button>
-                  ))}
+                  </div>
                 </div>
-                <div className="border-t px-3.5 py-2">
-                  <button
-                    onClick={() => { setShopOpen(false); void handleAddShop(); }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/5"
-                  >
-                    <Plus className="h-3.5 w-3.5" /> Add New Shop
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Notifications */}
           <div ref={notifRef} className="relative">
@@ -365,7 +367,10 @@ export function TopNavbar() {
           </button>
 
           {/* Profile */}
-          <button className="hidden sm:flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted">
+          <button
+            onClick={() => navigate("/profile")}
+            className="hidden sm:flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-foreground transition-all duration-200 hover:bg-muted"
+          >
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
               <User className="h-3.5 w-3.5" />
             </div>

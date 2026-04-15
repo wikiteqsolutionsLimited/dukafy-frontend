@@ -17,7 +17,7 @@ export function SetupBanner() {
         <div className="flex items-center gap-2.5">
           <AlertTriangle className="h-4 w-4 shrink-0 text-warning" />
           <p className="text-xs font-medium text-foreground sm:text-sm">
-            Create your first shop to start using DukaFlo.
+            Create your first shop to start using DukaFy.
           </p>
         </div>
         <div className="flex items-center gap-2">

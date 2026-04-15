@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://dukaflow.wikiteq.co.ke/api";
+  import.meta.env.VITE_API_URL || "https://dukafyw.wikiteq.co.ke/api";
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -45,7 +45,8 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      if (response.status === 401) {
+      // Only redirect on 401 if we actually have a token (not during login)
+      if (response.status === 401 && this.getToken()) {
         localStorage.removeItem("shop_token");
         localStorage.removeItem("shop_user");
         localStorage.removeItem("shop_authenticated");
@@ -127,6 +128,10 @@ export const authApi = {
     api.post("/auth/forgot-password", { email }),
   resetPassword: (token: string, password: string) =>
     api.post("/auth/reset-password", { token, password }),
+  updateProfile: (data: { name?: string; phone?: string }) =>
+    api.put("/auth/profile", data),
+  changePassword: (data: { current_password: string; new_password: string }) =>
+    api.put("/auth/change-password", data),
 };
 
 // ── Products API ──
@@ -193,6 +198,16 @@ export const salesApi = {
   todaySummary: () => api.get("/sales/today-summary"),
   getReports: (params?: { from?: string; to?: string }) =>
     api.get("/sales/reports", params),
+  vatReport: (params?: { from?: string; to?: string }) =>
+    api.get("/sales/vat-report", params),
+};
+
+// ── Held Sales API ──
+export const heldSalesApi = {
+  getAll: () => api.get("/held-sales"),
+  getById: (id: number) => api.get(`/held-sales/${id}`),
+  create: (data: any) => api.post("/held-sales", data),
+  delete: (id: number) => api.delete(`/held-sales/${id}`),
 };
 
 // ── Expenses API ──
@@ -276,6 +291,7 @@ export const shopsApi = {
   getMembers: (id: number) => api.get(`/shops/${id}/members`),
   addMember: (id: number, user_id: number, role: string) => api.post(`/shops/${id}/members`, { user_id, role }),
   removeMember: (shopId: number, userId: number) => api.delete(`/shops/${shopId}/members/${userId}`),
+  inviteMember: (id: number, data: { email: string; role: string }) => api.post(`/shops/${id}/invite`, data),
 };
 
 // ── Subscriptions API ──
@@ -285,4 +301,12 @@ export const subscriptionsApi = {
   renew: (plan_id: string) => api.post("/subscriptions/renew", { plan_id }),
   initiatePayment: (data: { plan_id: string; phone: string }) => api.post("/subscriptions/initiate-payment", data),
   confirmPayment: (data: { checkout_request_id: string; plan_id: string }) => api.post("/subscriptions/confirm-payment", data),
+};
+
+// ── Support Tickets API (Shop owner side) ──
+export const supportTicketsApi = {
+  getAll: () => api.get("/support-tickets"),
+  getById: (id: number) => api.get(`/support-tickets/${id}`),
+  create: (data: { subject: string; message: string; category?: string; priority?: string }) => api.post("/support-tickets", data),
+  reply: (id: number, message: string) => api.post(`/support-tickets/${id}/reply`, { message }),
 };

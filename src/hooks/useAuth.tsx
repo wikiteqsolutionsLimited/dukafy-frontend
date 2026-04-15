@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   hasRole: (...roles: string[]) => boolean;
+  updateUser: (data: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!token && !!user;
 
-  // Verify token on mount
+  // Verify token on mount — but don't redirect on failure during initial load
   useEffect(() => {
     const verify = async () => {
       if (!token) {
@@ -46,8 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (res.success && res.data) {
           setUser(res.data);
           localStorage.setItem("shop_user", JSON.stringify(res.data));
-        } else {
-          logout();
         }
       } catch {
         // Token invalid or backend unreachable — keep local state for offline
@@ -79,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("shop_token");
     localStorage.removeItem("shop_user");
     localStorage.removeItem("shop_authenticated");
+    localStorage.removeItem("active_shop_id");
   }, []);
 
   const hasRole = useCallback(
@@ -89,8 +89,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user]
   );
 
+  const updateUser = useCallback((data: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...data };
+      localStorage.setItem("shop_user", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated, isLoading, login, logout, hasRole }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated, isLoading, login, logout, hasRole, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Users, Shield } from "lucide-react";
+import { Plus, Users, Shield, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { usersApi } from "@/lib/api";
+import { usersApi, shopsApi } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useShop } from "@/hooks/useShop";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -33,14 +34,18 @@ const ROLE_VARIANTS: Record<string, "success" | "warning" | "default" | "danger"
 
 const StaffPage = () => {
   const { hasRole } = useAuth();
+  const { activeShop } = useShop();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<StaffMember | null>(null);
   const [deactivateUser, setDeactivateUser] = useState<StaffMember | null>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "cashier" });
+  const [inviteForm, setInviteForm] = useState({ email: "", role: "cashier" });
+  const [inviting, setInviting] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page, search, roleFilter],
@@ -98,6 +103,23 @@ const StaffPage = () => {
     }
   };
 
+  const handleInvite = async () => {
+    if (!inviteForm.email.trim()) { toast.error("Email is required"); return; }
+    if (!activeShop) { toast.error("No active shop"); return; }
+    setInviting(true);
+    try {
+      const res = await shopsApi.inviteMember(activeShop.id, inviteForm);
+      toast.success(res.message || "Invite sent successfully");
+      setInviteModalOpen(false);
+      setInviteForm({ email: "", role: "cashier" });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send invite");
+    } finally {
+      setInviting(false);
+    }
+  };
+
   const users = data?.data || [];
   const pagination = data?.pagination;
 
@@ -150,7 +172,15 @@ const StaffPage = () => {
   return (
     <div className="animate-fade-in space-y-6">
       <PageHeader title="Staff Management" description={`${pagination?.total || 0} staff members`}>
-        <PrimaryButton icon={Plus} onClick={openAdd}>Add Staff</PrimaryButton>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setInviteModalOpen(true)}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border bg-card px-4 text-sm font-medium text-foreground shadow-sm hover:bg-muted transition-colors"
+          >
+            <Mail className="h-4 w-4" /> Invite via Email
+          </button>
+          <PrimaryButton icon={Plus} onClick={openAdd}>Add Staff</PrimaryButton>
+        </div>
       </PageHeader>
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -219,6 +249,38 @@ const StaffPage = () => {
         confirmLabel="Deactivate"
         variant="danger"
       />
+
+      {/* Invite Modal */}
+      <Modal open={inviteModalOpen} onClose={() => setInviteModalOpen(false)} title="Invite Staff via Email">
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Send an email invitation to add a new staff member to your shop. If they already have a DukaFy account, they'll be added immediately.
+          </p>
+          <FormInput
+            label="Email Address"
+            type="email"
+            value={inviteForm.email}
+            onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+            placeholder="staff@example.com"
+          />
+          <FormSelect
+            label="Role"
+            value={inviteForm.role}
+            onChange={(v) => setInviteForm({ ...inviteForm, role: v })}
+            options={[
+              { label: "Cashier", value: "cashier" },
+              { label: "Manager", value: "manager" },
+              { label: "Admin", value: "admin" },
+            ]}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <button onClick={() => setInviteModalOpen(false)} className="h-10 rounded-lg border bg-card px-4 text-sm font-medium text-muted-foreground hover:bg-muted">Cancel</button>
+            <PrimaryButton icon={Mail} onClick={handleInvite} disabled={inviting}>
+              {inviting ? "Sending..." : "Send Invite"}
+            </PrimaryButton>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

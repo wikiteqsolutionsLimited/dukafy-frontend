@@ -10,7 +10,7 @@ const PrivacyPage = () => (
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-md transition-transform duration-300 group-hover:scale-110">
             <Store className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-black tracking-tight text-foreground">DukaFlo</span>
+          <span className="text-lg font-black tracking-tight text-foreground">DukaFy</span>
         </Link>
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Home
@@ -102,14 +102,14 @@ const PrivacyPage = () => (
 
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">11. Contact Us</h2>
-          <p>For privacy-related inquiries, contact our Data Protection Officer at <a href="mailto:privacy@dukaflo.co.ke" className="font-medium text-primary hover:underline">privacy@dukaflo.co.ke</a>.</p>
+          <p>For privacy-related inquiries, contact our Data Protection Officer at <a href="mailto:privacy@dukafy.co.ke" className="font-medium text-primary hover:underline">privacy@dukafy.co.ke</a>.</p>
         </section>
       </div>
     </div>
 
     <footer className="border-t bg-card py-8">
       <div className="mx-auto max-w-4xl px-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        <p className="text-xs text-muted-foreground">© 2026 DukaFlo. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 DukaFy. All rights reserved.</p>
         <div className="flex gap-4">
           <Link to="/terms" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Terms</Link>
           <Link to="/privacy" className="text-xs font-medium text-foreground">Privacy</Link>

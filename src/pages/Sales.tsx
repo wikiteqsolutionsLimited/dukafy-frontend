@@ -25,7 +25,7 @@ import { OrderConfirmation } from "@/components/sales/OrderConfirmation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/currency";
-import { productsApi, salesApi, customersApi, mpesaApi } from "@/lib/api";
+import { productsApi, salesApi, customersApi, mpesaApi, heldSalesApi } from "@/lib/api";
 import { Modal } from "@/components/shared/Modal";
 import { FormInput } from "@/components/shared/FormFields";
 import {
@@ -42,6 +42,8 @@ interface Product {
   category_name?: string;
   quantity: number;
   image_url?: string;
+  vat_rate?: number;
+  is_vat_inclusive?: boolean;
 }
 
 interface CartItem {
@@ -50,6 +52,8 @@ interface CartItem {
   price: number;
   qty: number;
   product_id: number;
+  vat_rate: number;
+  is_vat_inclusive: boolean;
 }
 
 interface Customer {
@@ -204,6 +208,8 @@ const SalesPage = () => {
               price: product.sell_price,
               qty: 1,
               product_id: product.id,
+              vat_rate: product.vat_rate ?? 16,
+              is_vat_inclusive: product.is_vat_inclusive !== false,
             },
           ];
         });
@@ -252,6 +258,8 @@ const SalesPage = () => {
           price: product.sell_price,
           qty: 1,
           product_id: product.id,
+          vat_rate: product.vat_rate ?? 16,
+          is_vat_inclusive: product.is_vat_inclusive !== false,
         },
       ];
     });
@@ -308,9 +316,22 @@ const SalesPage = () => {
     return () => document.removeEventListener("keydown", handler);
   }, [filtered, activeCartItem, addToCart, updateQty, removeItem]);
 
-  const subtotal = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+  // Per-product VAT calculation
+  const { subtotal, tax, total } = useMemo(() => {
+    let sub = 0, vat = 0;
+    for (const c of cart) {
+      const rate = c.vat_rate ?? 16;
+      if (c.is_vat_inclusive) {
+        const excl = c.price / (1 + rate / 100);
+        sub += excl * c.qty;
+        vat += (c.price - excl) * c.qty;
+      } else {
+        sub += c.price * c.qty;
+        vat += c.price * (rate / 100) * c.qty;
+      }
+    }
+    return { subtotal: Math.round(sub * 100) / 100, tax: Math.round(vat * 100) / 100, total: Math.round((sub + vat) * 100) / 100 };
+  }, [cart]);
   const itemCount = cart.reduce((sum, c) => sum + c.qty, 0);
 
   const handleCheckout = async () => {
@@ -891,11 +912,11 @@ const SalesPage = () => {
             {cart.length > 0 && (
               <div className="border-t px-5 py-4 space-y-3">
                 <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Subtotal</span>
+                  <span>Subtotal (excl. VAT)</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Tax (10%)</span>
+                <div className="flex justify-between text-sm font-medium text-primary">
+                  <span>Total VAT</span>
                   <span>{formatCurrency(tax)}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-card-foreground border-t pt-3">

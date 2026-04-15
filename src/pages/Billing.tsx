@@ -63,7 +63,7 @@ const BillingPage = () => {
 
   const handleUpgrade = (plan: Plan) => {
     if (plan.contact_required) {
-      window.open("mailto:hello@dukaflo.co.ke?subject=Enterprise Plan Inquiry", "_blank");
+      window.open("mailto:hello@dukafy.co.ke?subject=Enterprise Plan Inquiry", "_blank");
       return;
     }
     if (subscription?.plan === plan.id && subscription?.status === "active") {
@@ -160,7 +160,7 @@ const BillingPage = () => {
             <div>
               <h3 className="text-lg font-bold text-destructive">Subscription Expired</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your subscription has expired. Please renew to continue using DukaFlo. 
+                Your subscription has expired. Please renew to continue using DukaFy. 
                 Your data is safe and will be available once you reactivate.
               </p>
             </div>
@@ -198,7 +198,7 @@ const BillingPage = () => {
           {subscription.status === "trialing" && subscription.days_remaining <= 7 && (
             <div className="mt-4 flex items-center gap-2 rounded-xl bg-warning/10 px-4 py-3 text-sm text-warning">
               <AlertTriangle className="h-4 w-4 shrink-0" />
-              <p>Your free trial ends in <strong>{subscription.days_remaining} days</strong>. Upgrade to keep using DukaFlo.</p>
+              <p>Your free trial ends in <strong>{subscription.days_remaining} days</strong>. Upgrade to keep using DukaFy.</p>
             </div>
           )}
 

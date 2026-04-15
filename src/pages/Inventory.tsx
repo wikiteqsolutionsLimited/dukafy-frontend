@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Package, PackageX, AlertTriangle, DollarSign } from "lucide-react";
+import { Plus, Package, PackageX, AlertTriangle, DollarSign, Barcode } from "lucide-react";
 import { ProductModal } from "@/components/inventory/ProductModal";
+import { BarcodeModal } from "@/components/inventory/BarcodeModal";
 import { toast } from "sonner";
 import { productsApi, categoriesApi } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
@@ -48,7 +49,7 @@ const InventoryPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
-
+  const [barcodeProduct, setBarcodeProduct] = useState<Product | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["products", page, search],
     queryFn: () => productsApi.getAll({ page, limit: PAGE_SIZE, search: search || undefined }),
@@ -111,6 +112,13 @@ const InventoryPage = () => {
       key: "actions", header: "Actions", align: "right",
       render: (p) => (
         <RowActions>
+          <button
+            onClick={() => setBarcodeProduct(p)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            title="Generate Barcode"
+          >
+            <Barcode className="h-4 w-4" />
+          </button>
           {hasRole("admin", "manager") && <EditButton onClick={() => { setEditProduct(p); setModalOpen(true); }} />}
           {hasRole("admin") && <DeleteButton onClick={() => setDeleteProduct(p)} />}
         </RowActions>
@@ -226,6 +234,12 @@ const InventoryPage = () => {
         description="This product will be permanently removed from your inventory."
         confirmLabel="Delete"
         variant="danger"
+      />
+
+      <BarcodeModal
+        open={!!barcodeProduct}
+        onClose={() => setBarcodeProduct(null)}
+        product={barcodeProduct}
       />
     </div>
   );

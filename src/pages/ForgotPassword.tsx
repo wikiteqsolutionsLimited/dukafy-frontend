@@ -35,7 +35,7 @@ const ForgotPasswordPage = () => {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg">
             <Store className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-foreground">DukaFlo</span>
+          <span className="text-xl font-bold tracking-tight text-foreground">DukaFy</span>
         </div>
 
         <div className="rounded-2xl border bg-card p-8 shadow-sm">

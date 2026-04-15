@@ -17,6 +17,8 @@ export interface ProductFormData {
   image: File | null;
   category_id?: number;
   supplier_id?: number;
+  vat_rate: string;
+  is_vat_inclusive: boolean;
 }
 
 interface ProductModalProps {
@@ -29,6 +31,7 @@ interface ProductModalProps {
 
 const emptyForm: ProductFormData = {
   name: "", category: "", quantity: "", buyPrice: "", sellPrice: "", supplier: "", image: null,
+  vat_rate: "16", is_vat_inclusive: true,
 };
 
 export function ProductModal({ open, onClose, onSave, initialData, mode = "add" }: ProductModalProps) {
@@ -38,7 +41,6 @@ export function ProductModal({ open, onClose, onSave, initialData, mode = "add" 
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch categories and suppliers from API
   const { data: categoriesData } = useQuery({
     queryKey: ["categories-list"],
     queryFn: () => categoriesApi.getAll(),
@@ -63,7 +65,7 @@ export function ProductModal({ open, onClose, onSave, initialData, mode = "add" 
     }
   }, [open, initialData]);
 
-  const update = (field: keyof ProductFormData, value: string) => {
+  const update = (field: keyof ProductFormData, value: string | boolean) => {
     setForm((f) => ({ ...f, [field]: value }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   };
@@ -94,6 +96,7 @@ export function ProductModal({ open, onClose, onSave, initialData, mode = "add" 
     if (!form.sellPrice) e.sellPrice = "Required";
     else if (isNaN(Number(form.sellPrice)) || Number(form.sellPrice) < 0) e.sellPrice = "Invalid price";
     if (!form.supplier) e.supplier = "Required";
+    if (isNaN(Number(form.vat_rate)) || Number(form.vat_rate) < 0) e.vat_rate = "Invalid VAT rate";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -117,6 +120,40 @@ export function ProductModal({ open, onClose, onSave, initialData, mode = "add" 
           <FormInput label="Buying Price (KES)" type="number" min="0" step="0.01" value={form.buyPrice} onChange={(e) => update("buyPrice", e.target.value)} placeholder="0.00" error={errors.buyPrice} required />
           <FormInput label="Selling Price (KES)" type="number" min="0" step="0.01" value={form.sellPrice} onChange={(e) => update("sellPrice", e.target.value)} placeholder="0.00" error={errors.sellPrice} required />
         </div>
+
+        {/* VAT Configuration */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormInput label="VAT Rate (%)" type="number" min="0" max="100" step="0.01" value={form.vat_rate} onChange={(e) => update("vat_rate", e.target.value)} placeholder="16" error={errors.vat_rate} />
+          <FormField label="VAT Type">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => update("is_vat_inclusive", true)}
+                className={cn(
+                  "flex-1 rounded-lg py-2 text-xs font-semibold transition-all",
+                  form.is_vat_inclusive
+                    ? "bg-primary text-primary-foreground"
+                    : "border bg-muted text-muted-foreground hover:bg-accent"
+                )}
+              >
+                VAT Inclusive
+              </button>
+              <button
+                type="button"
+                onClick={() => update("is_vat_inclusive", false)}
+                className={cn(
+                  "flex-1 rounded-lg py-2 text-xs font-semibold transition-all",
+                  !form.is_vat_inclusive
+                    ? "bg-primary text-primary-foreground"
+                    : "border bg-muted text-muted-foreground hover:bg-accent"
+                )}
+              >
+                VAT Exclusive
+              </button>
+            </div>
+          </FormField>
+        </div>
+
         <FormField label="Product Image" error={errors.image as string} optional>
           {imagePreview ? (
             <div className="relative inline-block">

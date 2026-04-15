@@ -35,14 +35,22 @@ export function ProtectedLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect expired users to billing (but allow accessing billing page itself)
-  const isExpired = subData && !subData.is_active;
+  // Force shop setup before anything else (except billing and settings)
+  const isSetupPage = location.pathname === "/shop-setup";
   const isBillingPage = location.pathname === "/billing";
   const isSettingsPage = location.pathname === "/settings";
-  
-  if (isExpired && !isBillingPage && !isSettingsPage) {
+  const isProfilePage = location.pathname === "/profile";
+  const isSupportPage = location.pathname === "/support";
+
+  if (!isSetupComplete && !isSetupPage && !isBillingPage && !isSettingsPage && !isProfilePage) {
+    return <Navigate to="/shop-setup" replace />;
+  }
+
+  // Redirect expired users to billing (but allow accessing billing, settings, profile)
+  const isExpired = subData && !subData.is_active;
+  if (isExpired && !isBillingPage && !isSettingsPage && !isProfilePage) {
     return <Navigate to="/billing" replace />;
   }
 
-  return <DashboardLayout />;
+  return <DashboardLayout subscriptionData={subData} />;
 }

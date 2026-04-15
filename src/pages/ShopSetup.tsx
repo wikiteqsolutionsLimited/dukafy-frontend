@@ -64,7 +64,7 @@ const ShopSetupPage = () => {
         await shopsApi.create(shopData);
       }
       await refresh();
-      toast.success("Shop setup complete! Welcome to DukaFlo 🎉");
+      toast.success("Shop setup complete! Welcome to DukaFy 🎉");
       navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Failed to save settings");
@@ -106,7 +106,7 @@ const ShopSetupPage = () => {
                 <Sparkles className="h-10 w-10 text-primary" />
               </div>
               <h1 className="text-2xl font-black text-card-foreground">
-                Welcome to DukaFlo{user?.name ? `, ${user.name.split(" ")[0]}` : ""}! 🎉
+                Welcome to DukaFy{user?.name ? `, ${user.name.split(" ")[0]}` : ""}! 🎉
               </h1>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
                 Let's get your shop set up in just a few quick steps.

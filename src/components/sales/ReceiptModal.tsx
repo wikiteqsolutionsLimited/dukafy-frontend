@@ -34,7 +34,7 @@ const ReceiptContent = forwardRef<HTMLDivElement, { data: ReceiptData }>(({ data
   <div ref={ref} className="receipt-content mx-auto w-[280px] bg-card font-mono text-[11px] leading-tight text-card-foreground">
     {/* Header */}
     <div className={`${DASHED} pb-3 text-center`}>
-      <p className="text-sm font-extrabold tracking-widest uppercase">{data.shopName || "DukaFlo"}</p>
+      <p className="text-sm font-extrabold tracking-widest uppercase">{data.shopName || "DukaFy"}</p>
       <p className="mt-1.5 text-[9px] text-muted-foreground leading-relaxed">
         123 Main Street, City<br />
         Tel: (555) 123-4567<br />
@@ -123,7 +123,7 @@ const ReceiptContent = forwardRef<HTMLDivElement, { data: ReceiptData }>(({ data
       <p className="text-[10px] font-semibold">Thank you for shopping with us!</p>
       <p className="mt-1 text-[8px] text-muted-foreground leading-relaxed">
         Returns accepted within 14 days with receipt<br />
-        Visit us at www.dukaflo.co.ke
+        Visit us at www.dukafy.co.ke
       </p>
       <div className="mx-auto mt-3 flex justify-center gap-[2px]">
         {Array.from({ length: 30 }).map((_, i) => (

@@ -75,7 +75,7 @@ export async function printESCPOS(lines: string[], total?: string): Promise<bool
     await send(center);
     await send(boldOn);
     await send(doubleSize);
-    await send(encoder.encode("DukaFlo\n"));
+    await send(encoder.encode("DukaFy\n"));
     await send(normalSize);
     await send(boldOff);
     await send(encoder.encode("--------------------------------\n"));
