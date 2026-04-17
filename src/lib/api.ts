@@ -282,6 +282,12 @@ export const notificationsApi = {
   dismiss: (id: number) => api.delete(`/notifications/${id}`),
 };
 
+// ── Admin Analytics API ──
+export const adminAnalyticsApi = {
+  get: (range: "7d" | "30d" | "90d" | "1y" = "30d") =>
+    api.get("/admin/analytics", { range }),
+};
+
 // ── Shop Settings API ──
 export const shopSettingsApi = {
   get: () => api.get("/shop-settings"),
@@ -326,4 +332,45 @@ export const supportTicketsApi = {
   }) => api.post("/support-tickets", data),
   reply: (id: number, message: string) =>
     api.post(`/support-tickets/${id}/reply`, { message }),
+};
+
+// ── Stock Adjustments API ──
+export const stockAdjustmentsApi = {
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    reason?: string;
+  }) => api.get("/stock-adjustments", params),
+  create: (data: { product_id: number; new_qty: number; reason: string }) =>
+    api.post("/stock-adjustments", data),
+  delete: (id: number) => api.delete(`/stock-adjustments/${id}`),
+};
+
+// ── Purchase Orders API ──
+export const purchaseOrdersApi = {
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+  }) => api.get("/purchase-orders", params),
+  getById: (id: number) => api.get(`/purchase-orders/${id}`),
+  create: (data: {
+    supplier_id?: number;
+    items: Array<{
+      product_id?: number;
+      product_name: string;
+      quantity: number;
+      unit_price: number;
+    }>;
+    notes?: string;
+    status?: string;
+  }) => api.post("/purchase-orders", data),
+  updateStatus: (id: number, status: string, receive_stock?: boolean) =>
+    api.patch(`/purchase-orders/${id}/status`, {
+      status,
+      receive_stock: !!receive_stock,
+    }),
+  delete: (id: number) => api.delete(`/purchase-orders/${id}`),
 };

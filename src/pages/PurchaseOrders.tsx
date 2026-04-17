@@ -1,119 +1,164 @@
-import { useState, useMemo } from "react";
-import { useSimulatedLoading } from "@/hooks/use-loading";
-import { Plus, ClipboardList } from "lucide-react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus, ClipboardList, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";
 import { DataTable, Column } from "@/components/shared/DataTable";
-import { PrimaryButton, Badge, FilterSelect, ViewButton, EditButton, DeleteButton, RowActions } from "@/components/shared/ActionButtons";
+import { PrimaryButton, Badge, FilterSelect, DeleteButton, RowActions } from "@/components/shared/ActionButtons";
 import { ConfirmModal } from "@/components/shared/Modal";
+import { purchaseOrdersApi } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 
 interface PurchaseOrder {
-  id: string;
-  supplier: string;
-  totalAmount: number;
-  status: "Pending" | "Completed";
-  date: string;
-  items: number;
+  id: number;
+  reference: string;
+  supplier_name: string;
+  total_amount: number;
+  status: "pending" | "completed" | "cancelled";
+  item_count: number;
+  created_at: string;
 }
 
-const dummyOrders: PurchaseOrder[] = [
-  { id: "PO-001", supplier: "TechWholesale Inc.", totalAmount: 4250, status: "Completed", date: "2026-03-01", items: 5 },
-  { id: "PO-002", supplier: "FashionDirect", totalAmount: 1890, status: "Completed", date: "2026-03-03", items: 3 },
-  { id: "PO-003", supplier: "FreshFoods Co.", totalAmount: 720, status: "Pending", date: "2026-03-07", items: 4 },
-  { id: "PO-004", supplier: "HomeSupply Ltd.", totalAmount: 3100, status: "Completed", date: "2026-03-09", items: 6 },
-  { id: "PO-005", supplier: "SportGear Pro", totalAmount: 2450, status: "Pending", date: "2026-03-12", items: 3 },
-  { id: "PO-006", supplier: "GadgetWorld", totalAmount: 1560, status: "Pending", date: "2026-03-14", items: 2 },
-  { id: "PO-007", supplier: "EcoGoods", totalAmount: 890, status: "Completed", date: "2026-03-15", items: 4 },
-  { id: "PO-008", supplier: "MegaDistributors", totalAmount: 2100, status: "Completed", date: "2026-03-17", items: 7 },
-  { id: "PO-009", supplier: "TechWholesale Inc.", totalAmount: 5600, status: "Pending", date: "2026-03-18", items: 8 },
-  { id: "PO-010", supplier: "FashionDirect", totalAmount: 960, status: "Completed", date: "2026-03-19", items: 2 },
-];
-
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 10;
 
 const PurchaseOrdersPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [deleteOrder, setDeleteOrder] = useState<PurchaseOrder | null>(null);
-  const loading = useSimulatedLoading(600);
+  const [completeOrder, setCompleteOrder] = useState<PurchaseOrder | null>(null);
 
-  const filtered = useMemo(() => {
-    return dummyOrders.filter((o) => {
-      const matchSearch = o.id.toLowerCase().includes(search.toLowerCase()) || o.supplier.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === "All" || o.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [search, statusFilter]);
+  const { data, isLoading } = useQuery({
+    queryKey: ["purchase-orders", page, search, statusFilter],
+    queryFn: () => purchaseOrdersApi.getAll({
+      page, limit: PAGE_SIZE,
+      search: search || undefined,
+      status: statusFilter !== "All" ? statusFilter : undefined,
+    }),
+  });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const rows: PurchaseOrder[] = data?.data || [];
+  const pagination = data?.pagination;
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => purchaseOrdersApi.delete(id),
+    onSuccess: () => {
+      toast.success("Purchase order deleted");
+      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+      setDeleteOrder(null);
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to delete"),
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: (id: number) => purchaseOrdersApi.updateStatus(id, "completed", true),
+    onSuccess: () => {
+      toast.success("Order completed and stock received");
+      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      setCompleteOrder(null);
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to complete"),
+  });
 
   const columns: Column<PurchaseOrder>[] = [
-    { key: "id", header: "Order ID", render: (o) => <span className="font-semibold text-primary">{o.id}</span> },
-    { key: "supplier", header: "Supplier", render: (o) => <span className="font-medium text-card-foreground">{o.supplier}</span> },
-    { key: "items", header: "Items", render: (o) => <span className="text-muted-foreground">{o.items} products</span> },
-    { key: "totalAmount", header: "Total Amount", align: "right", render: (o) => <span className="font-semibold text-card-foreground">KES {o.totalAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span> },
+    { key: "ref", header: "Reference", render: (o) => <span className="font-semibold text-primary">{o.reference}</span> },
+    { key: "supplier", header: "Supplier", render: (o) => <span className="font-medium text-card-foreground">{o.supplier_name || "—"}</span> },
+    { key: "items", header: "Items", render: (o) => <span className="text-muted-foreground">{o.item_count} product{o.item_count !== 1 ? "s" : ""}</span> },
+    {
+      key: "total", header: "Total", align: "right",
+      render: (o) => <span className="font-semibold text-card-foreground">{formatCurrency(Number(o.total_amount))}</span>,
+    },
     {
       key: "status", header: "Status",
-      render: (o) => <Badge variant={o.status === "Completed" ? "success" : "warning"}>{o.status}</Badge>,
+      render: (o) => (
+        <Badge variant={o.status === "completed" ? "success" : o.status === "cancelled" ? "danger" : "warning"}>
+          {o.status.charAt(0).toUpperCase() + o.status.slice(1)}
+        </Badge>
+      ),
     },
-    { key: "date", header: "Date", render: (o) => <span className="text-muted-foreground">{format(new Date(o.date), "MMM dd, yyyy")}</span> },
+    { key: "date", header: "Date", render: (o) => <span className="text-muted-foreground">{format(new Date(o.created_at), "MMM dd, yyyy")}</span> },
     {
       key: "actions", header: "Actions", align: "right",
       render: (o) => (
         <RowActions>
-          <ViewButton />
-          <EditButton />
+          {o.status === "pending" && (
+            <button
+              onClick={() => setCompleteOrder(o)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-success transition-colors hover:bg-success/10"
+              title="Mark as received & add to stock"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+          )}
           <DeleteButton onClick={() => setDeleteOrder(o)} />
         </RowActions>
       ),
     },
   ];
 
+  const totalPages = pagination?.totalPages || 1;
+
   return (
     <div className="animate-fade-in space-y-6">
-      <PageHeader title="Purchase Orders" description={`${filtered.length} orders found`}>
+      <PageHeader title="Purchase Orders" description={`${pagination?.total ?? 0} orders found`}>
         <PrimaryButton icon={Plus} onClick={() => navigate("/purchase-orders/create")}>Create Purchase Order</PrimaryButton>
       </PageHeader>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search by order ID or supplier..." className="flex-1" />
+        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search by reference or supplier..." className="flex-1" />
         <FilterSelect value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
           <option value="All">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Completed">Completed</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
         </FilterSelect>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <TableSkeleton columns={7} rows={8} />
-      ) : paginated.length === 0 && search === "" && statusFilter === "All" ? (
+      ) : rows.length === 0 && !search && statusFilter === "All" ? (
         <EmptyState icon={ClipboardList} title="No purchase orders yet" description="Create your first purchase order to start managing supplier orders." actionLabel="Create Purchase Order" onAction={() => navigate("/purchase-orders/create")} />
       ) : (
         <DataTable
           columns={columns}
-          data={paginated}
+          data={rows}
           keyExtractor={(o) => o.id}
           emptyMessage="No orders match your filters"
-          pagination={{ currentPage, totalPages, totalItems: filtered.length, pageSize: PAGE_SIZE, onPageChange: setPage }}
+          pagination={{
+            currentPage: page,
+            totalPages,
+            totalItems: pagination?.total ?? 0,
+            pageSize: PAGE_SIZE,
+            onPageChange: setPage,
+          }}
         />
       )}
 
       <ConfirmModal
         open={!!deleteOrder}
         onClose={() => setDeleteOrder(null)}
-        onConfirm={() => { setDeleteOrder(null); }}
-        title={`Delete ${deleteOrder?.id}?`}
-        description={`This purchase order from "${deleteOrder?.supplier}" will be permanently removed.`}
+        onConfirm={() => deleteOrder && deleteMutation.mutate(deleteOrder.id)}
+        title={`Delete ${deleteOrder?.reference}?`}
+        description={`This purchase order from "${deleteOrder?.supplier_name}" will be permanently removed.`}
         confirmLabel="Delete"
         variant="danger"
+      />
+
+      <ConfirmModal
+        open={!!completeOrder}
+        onClose={() => setCompleteOrder(null)}
+        onConfirm={() => completeOrder && completeMutation.mutate(completeOrder.id)}
+        title={`Mark ${completeOrder?.reference} as received?`}
+        description="This will mark the order as completed and ADD the ordered quantities to your product stock."
+        confirmLabel="Yes, receive stock"
       />
     </div>
   );

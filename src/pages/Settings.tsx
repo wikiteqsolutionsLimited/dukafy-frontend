@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Upload, Save, Store, Loader2, Smartphone } from "lucide-react";
+import { Save, Store, Loader2, Smartphone } from "lucide-react";
 import { toast } from "sonner";
-import { shopSettingsApi } from "@/lib/api";
+import { shopSettingsApi, shopsApi } from "@/lib/api";
 import { useShop } from "@/hooks/useShop";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CardSection } from "@/components/shared/CardSection";
@@ -10,15 +10,18 @@ import { FormInput, FormTextarea } from "@/components/shared/FormFields";
 import { PrimaryButton } from "@/components/shared/ActionButtons";
 
 const SettingsPage = () => {
-  const { refresh } = useShop();
-  const { activeShop } = useShop();
-  const { data, isLoading } = useQuery({
-    queryKey: ["shop-settings"],
+  const { activeShop, refresh } = useShop();
+  const isAdmin = activeShop?.member_role === "admin";
+
+  // Payment settings live on shop_settings table
+  const { data: paymentData, isLoading: paymentLoading, refetch: refetchPayment } = useQuery({
+    queryKey: ["shop-settings", activeShop?.id],
     queryFn: () => shopSettingsApi.get(),
+    enabled: !!activeShop,
   });
 
   const [form, setForm] = useState({
-    shop_name: "",
+    name: "",
     phone: "",
     email: "",
     address: "",
@@ -38,21 +41,26 @@ const SettingsPage = () => {
     mpesa_consumer_secret: "",
   });
 
+  // Auto-fill shop profile from active shop (lives on shops table)
   useEffect(() => {
-    if (data?.data) {
-      const s = data.data;
-      if (s.shop_name !== undefined) {
-        setForm({
-          shop_name: s.shop_name || "",
-          phone: s.phone || "",
-          email: s.email || "",
-          address: s.address || "",
-          currency: s.currency || "KES",
-          tax_rate: String(s.tax_rate || 0),
-          receipt_footer: s.receipt_footer || "",
-        });
-      }
+    if (activeShop) {
+      setForm({
+        name: activeShop.name || "",
+        phone: activeShop.phone || "",
+        email: activeShop.email || "",
+        address: activeShop.address || "",
+        currency: activeShop.currency || "KES",
+        tax_rate: String(activeShop.tax_rate ?? 0),
+        receipt_footer: activeShop.receipt_footer || "",
+      });
+      setLogoPreview(activeShop.logo_url || null);
+    }
+  }, [activeShop]);
 
+  // Auto-fill payment form from shop_settings
+  useEffect(() => {
+    if (paymentData?.data) {
+      const s = paymentData.data;
       setPaymentForm((prev) => ({
         ...prev,
         mpesa_enabled: !!s.mpesa_enabled,
@@ -61,7 +69,7 @@ const SettingsPage = () => {
         mpesa_callback_url: s.mpesa_callback_url || "",
       }));
     }
-  }, [data]);
+  }, [paymentData]);
 
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -75,14 +83,21 @@ const SettingsPage = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeShop) return;
+    if (!isAdmin) { toast.error("Only shop admins can update settings"); return; }
     setSaving(true);
     try {
-      await shopSettingsApi.update({
-        ...form,
+      await shopsApi.update(activeShop.id, {
+        name: form.name,
+        phone: form.phone || null,
+        email: form.email || null,
+        address: form.address || null,
+        currency: form.currency,
         tax_rate: parseFloat(form.tax_rate) || 0,
+        receipt_footer: form.receipt_footer,
       });
       await refresh();
-      toast.success("Settings saved successfully");
+      toast.success("Shop profile saved");
     } catch (err: any) {
       toast.error(err.message || "Failed to save settings");
     } finally {
@@ -95,7 +110,8 @@ const SettingsPage = () => {
     setSaving(true);
     try {
       await shopSettingsApi.update(paymentForm);
-      toast.success("Payment settings saved successfully");
+      await refetchPayment();
+      toast.success("Payment settings saved");
     } catch (err: any) {
       toast.error(err.message || "Failed to save payment settings");
     } finally {
@@ -103,7 +119,7 @@ const SettingsPage = () => {
     }
   };
 
-  if (isLoading) {
+  if (!activeShop || paymentLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -113,7 +129,7 @@ const SettingsPage = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <PageHeader title="Settings" description="Manage your shop profile" />
+      <PageHeader title="Settings" description={`Managing "${activeShop.name}"`} />
 
       <form onSubmit={handleSave} className="mx-auto max-w-2xl space-y-6">
         <CardSection title="Shop Logo" description="Upload your shop's logo (max 5MB)">
@@ -135,7 +151,7 @@ const SettingsPage = () => {
 
         <CardSection title="Shop Information" description="Basic details about your shop">
           <div className="space-y-4">
-            <FormInput label="Shop Name" value={form.shop_name} onChange={update("shop_name")} />
+            <FormInput label="Shop Name" value={form.name} onChange={update("name")} required />
             <div className="grid gap-4 sm:grid-cols-2">
               <FormInput label="Phone" type="tel" value={form.phone} onChange={update("phone")} />
               <FormInput label="Email" type="email" value={form.email} onChange={update("email")} />
@@ -148,22 +164,25 @@ const SettingsPage = () => {
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <FormInput label="Currency" value={form.currency} onChange={update("currency")} />
-              <FormInput label="Tax Rate (%)" type="number" value={form.tax_rate} onChange={update("tax_rate")} />
+              <FormInput label="Default Tax Rate (%)" type="number" min="0" step="0.01" value={form.tax_rate} onChange={update("tax_rate")} />
             </div>
             <FormTextarea label="Receipt Footer" value={form.receipt_footer} onChange={update("receipt_footer")} rows={2} />
           </div>
         </CardSection>
 
         <div className="flex justify-end">
-          <PrimaryButton icon={Save} type="submit" disabled={saving}>
+          <PrimaryButton icon={Save} type="submit" disabled={saving || !isAdmin}>
             {saving ? "Saving..." : "Save Changes"}
           </PrimaryButton>
         </div>
+        {!isAdmin && (
+          <p className="text-center text-xs text-muted-foreground">Only shop admins can edit shop settings.</p>
+        )}
       </form>
 
-      {activeShop?.member_role === "admin" && (
+      {isAdmin && (
         <form onSubmit={handlePaymentSave} className="mx-auto max-w-2xl space-y-6">
-          <CardSection title="M-Pesa Payment Configuration" description="Only the current shop admin can manage this shop's M-Pesa credentials.">
+          <CardSection title="M-Pesa Payment Configuration" description="Per-shop M-Pesa credentials. Only the shop admin can manage these.">
             <div className="space-y-4">
               <label className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm text-card-foreground">
                 <input
@@ -179,10 +198,10 @@ const SettingsPage = () => {
               </div>
               <FormInput label="Callback URL" value={paymentForm.mpesa_callback_url} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_callback_url: e.target.value }))} />
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormInput label="Consumer Key" value={paymentForm.mpesa_consumer_key} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_consumer_key: e.target.value }))} />
-                <FormInput label="Consumer Secret" value={paymentForm.mpesa_consumer_secret} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_consumer_secret: e.target.value }))} />
+                <FormInput label="Consumer Key" value={paymentForm.mpesa_consumer_key} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_consumer_key: e.target.value }))} placeholder="Leave blank to keep saved value" />
+                <FormInput label="Consumer Secret" value={paymentForm.mpesa_consumer_secret} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_consumer_secret: e.target.value }))} placeholder="Leave blank to keep saved value" />
               </div>
-              <FormInput label="Passkey" value={paymentForm.mpesa_passkey} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_passkey: e.target.value }))} />
+              <FormInput label="Passkey" value={paymentForm.mpesa_passkey} onChange={(e) => setPaymentForm((prev) => ({ ...prev, mpesa_passkey: e.target.value }))} placeholder="Leave blank to keep saved value" />
             </div>
           </CardSection>
 

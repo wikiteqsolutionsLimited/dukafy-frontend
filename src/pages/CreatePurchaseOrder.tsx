@@ -7,8 +7,8 @@ import { FormSelect } from "@/components/shared/FormFields";
 import { CardSection } from "@/components/shared/CardSection";
 import { PrimaryButton } from "@/components/shared/ActionButtons";
 
-import { useQuery } from "@tanstack/react-query";
-import { suppliersApi, productsApi } from "@/lib/api";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { suppliersApi, productsApi, purchaseOrdersApi } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 
 interface OrderItem {
@@ -55,11 +55,28 @@ const CreatePurchaseOrderPage = () => {
 
   const total = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
 
+  const createMutation = useMutation({
+    mutationFn: (payload: any) => purchaseOrdersApi.create(payload),
+    onSuccess: () => {
+      toast.success("Purchase order created successfully");
+      navigate("/purchase-orders");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to create purchase order"),
+  });
+
   const handleSubmit = () => {
     if (!supplier) { toast.error("Please select a supplier"); return; }
     if (items.length === 0) { toast.error("Please add at least one product"); return; }
-    toast.success("Purchase order created successfully!");
-    navigate("/purchase-orders");
+    createMutation.mutate({
+      supplier_id: parseInt(supplier, 10),
+      items: items.map((i) => ({
+        product_id: i.productId,
+        product_name: i.name,
+        quantity: i.quantity,
+        unit_price: i.price,
+      })),
+      status: "pending",
+    });
   };
 
   return (
