@@ -9,6 +9,7 @@ import { AdminAuthProvider } from "@/hooks/useAdminAuth";
 import { ProtectedLayout } from "@/components/layout/ProtectedLayout";
 import { AdminProtectedLayout } from "@/components/admin/AdminProtectedLayout";
 import { AdminDashboardLayout } from "@/components/admin/AdminDashboardLayout";
+import { RoleGuard } from "@/components/RoleGuard";
 import IndexPage from "./pages/Index";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
@@ -37,6 +38,8 @@ import PrivacyPage from "./pages/Privacy";
 import BillingPage from "./pages/Billing";
 import ProfilePage from "./pages/Profile";
 import SupportPage from "./pages/Support";
+import TaxReportPage from "./pages/TaxReport";
+import PaymentsPage from "./pages/Payments";
 // Admin pages
 import AdminLoginPage from "./pages/admin/AdminLogin";
 import AdminDashboardPage from "./pages/admin/AdminDashboard";
@@ -48,6 +51,7 @@ import AdminStaffPage from "./pages/admin/AdminStaff";
 import AdminOnboardPage from "./pages/admin/AdminOnboard";
 import AdminEmailPage from "./pages/admin/AdminEmail";
 import AdminActivityPage from "./pages/admin/AdminActivity";
+import AdminAnalyticsPage from "./pages/admin/AdminAnalytics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,32 +81,40 @@ const App = () => (
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route element={<ProtectedLayout />}>
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/shop-setup" element={<ShopSetupPage />} />
+                  {/* Open to all authenticated roles */}
                   <Route path="/sales" element={<SalesPage />} />
                   <Route path="/sales-history" element={<SalesHistoryPage />} />
                   <Route path="/inventory" element={<InventoryPage />} />
-                  <Route path="/expenses" element={<ExpensesPage />} />
-                  <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
-                  <Route path="/purchase-orders/create" element={<CreatePurchaseOrderPage />} />
-                  <Route path="/stock-adjustments" element={<StockAdjustmentsPage />} />
                   <Route path="/customers" element={<CustomersPage />} />
-                  <Route path="/suppliers" element={<SuppliersPage />} />
-                  <Route path="/categories" element={<CategoriesPage />} />
-                  <Route path="/reports" element={<ReportsPage />} />
-                  <Route path="/profit-loss" element={<ProfitLossPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/staff" element={<StaffPage />} />
-                  <Route path="/activity-logs" element={<ActivityLogsPage />} />
-                  <Route path="/billing" element={<BillingPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/support" element={<SupportPage />} />
+                  <Route path="/shop-setup" element={<ShopSetupPage />} />
+
+                  {/* Admin + Manager only */}
+                  <Route path="/dashboard" element={<RoleGuard roles={["admin", "manager"]}><DashboardPage /></RoleGuard>} />
+                  <Route path="/expenses" element={<RoleGuard roles={["admin", "manager"]}><ExpensesPage /></RoleGuard>} />
+                  <Route path="/purchase-orders" element={<RoleGuard roles={["admin", "manager"]}><PurchaseOrdersPage /></RoleGuard>} />
+                  <Route path="/purchase-orders/create" element={<RoleGuard roles={["admin", "manager"]}><CreatePurchaseOrderPage /></RoleGuard>} />
+                  <Route path="/stock-adjustments" element={<RoleGuard roles={["admin", "manager"]}><StockAdjustmentsPage /></RoleGuard>} />
+                  <Route path="/suppliers" element={<RoleGuard roles={["admin", "manager"]}><SuppliersPage /></RoleGuard>} />
+                  <Route path="/categories" element={<RoleGuard roles={["admin", "manager"]}><CategoriesPage /></RoleGuard>} />
+                  <Route path="/reports" element={<RoleGuard roles={["admin", "manager"]}><ReportsPage /></RoleGuard>} />
+                  <Route path="/profit-loss" element={<RoleGuard roles={["admin", "manager"]}><ProfitLossPage /></RoleGuard>} />
+                  <Route path="/tax-report" element={<RoleGuard roles={["admin", "manager"]}><TaxReportPage /></RoleGuard>} />
+                  <Route path="/payments" element={<RoleGuard roles={["admin", "manager"]}><PaymentsPage /></RoleGuard>} />
+
+                  {/* Admin only */}
+                  <Route path="/staff" element={<RoleGuard roles={["admin"]}><StaffPage /></RoleGuard>} />
+                  <Route path="/activity-logs" element={<RoleGuard roles={["admin"]}><ActivityLogsPage /></RoleGuard>} />
+                  <Route path="/billing" element={<RoleGuard roles={["admin"]}><BillingPage /></RoleGuard>} />
                 </Route>
                 {/* Admin Portal */}
                 <Route path="/dukafy-admin/login" element={<AdminLoginPage />} />
                 <Route element={<AdminProtectedLayout />}>
                   <Route element={<AdminDashboardLayout />}>
                     <Route path="/dukafy-admin" element={<AdminDashboardPage />} />
+                    <Route path="/dukafy-admin/analytics" element={<AdminAnalyticsPage />} />
                     <Route path="/dukafy-admin/shops" element={<AdminShopsPage />} />
                     <Route path="/dukafy-admin/users" element={<AdminUsersPage />} />
                     <Route path="/dukafy-admin/subscriptions" element={<AdminSubscriptionsPage />} />

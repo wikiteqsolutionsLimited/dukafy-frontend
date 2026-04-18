@@ -67,6 +67,7 @@ const fullMoreNav: NavItem[] = [
   { title: "Stock Adjustments", path: "/stock-adjustments", icon: PackageMinus, roles: ["admin", "manager"] },
   { title: "Profit & Loss", path: "/profit-loss", icon: LineChart, roles: ["admin", "manager"] },
   { title: "Tax Report", path: "/tax-report", icon: Calculator, roles: ["admin", "manager"] },
+  { title: "Payments", path: "/payments", icon: CreditCard, roles: ["admin", "manager"] },
   { title: "Billing", path: "/billing", icon: CreditCard, roles: ["admin"] },
   { title: "Support", path: "/support", icon: HeadphonesIcon, roles: ["admin", "manager", "cashier"] },
   { title: "Settings", path: "/settings", icon: Settings, roles: ["admin", "manager", "cashier"] },

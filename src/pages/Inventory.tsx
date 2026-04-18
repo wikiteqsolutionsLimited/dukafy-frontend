@@ -132,38 +132,40 @@ const InventoryPage = () => {
         {hasRole("admin", "manager") && <PrimaryButton icon={Plus} onClick={openAdd}>Add Product</PrimaryButton>}
       </PageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <CardSection className="flex flex-col items-center justify-center py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-            <Package className="h-5 w-5 text-primary" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-card-foreground">{totalProducts}</p>
-          <p className="text-xs text-muted-foreground">Total Products</p>
-        </CardSection>
-        <CardSection className="flex flex-col items-center justify-center py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-            <DollarSign className="h-5 w-5 text-accent-foreground" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-card-foreground">
-            {formatCurrency(totalStockValue)}
-          </p>
-          <p className="text-xs text-muted-foreground">Total Stock Value</p>
-        </CardSection>
-        <CardSection className="flex flex-col items-center justify-center py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10">
-            <AlertTriangle className="h-5 w-5 text-warning" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-card-foreground">{lowStockCount}</p>
-          <p className="text-xs text-muted-foreground">Low Stock Items</p>
-        </CardSection>
-        <CardSection className="flex flex-col items-center justify-center py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10">
-            <PackageX className="h-5 w-5 text-destructive" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-card-foreground">{outOfStockItems}</p>
-          <p className="text-xs text-muted-foreground">Out of Stock</p>
-        </CardSection>
-      </div>
+      {hasRole("admin", "manager") && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <CardSection className="flex flex-col items-center justify-center py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Package className="h-5 w-5 text-primary" />
+            </div>
+            <p className="mt-2 text-2xl font-bold text-card-foreground">{totalProducts}</p>
+            <p className="text-xs text-muted-foreground">Total Products</p>
+          </CardSection>
+          <CardSection className="flex flex-col items-center justify-center py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+              <DollarSign className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <p className="mt-2 text-2xl font-bold text-card-foreground">
+              {formatCurrency(totalStockValue)}
+            </p>
+            <p className="text-xs text-muted-foreground">Total Stock Value</p>
+          </CardSection>
+          <CardSection className="flex flex-col items-center justify-center py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+            </div>
+            <p className="mt-2 text-2xl font-bold text-card-foreground">{lowStockCount}</p>
+            <p className="text-xs text-muted-foreground">Low Stock Items</p>
+          </CardSection>
+          <CardSection className="flex flex-col items-center justify-center py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10">
+              <PackageX className="h-5 w-5 text-destructive" />
+            </div>
+            <p className="mt-2 text-2xl font-bold text-card-foreground">{outOfStockItems}</p>
+            <p className="text-xs text-muted-foreground">Out of Stock</p>
+          </CardSection>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search products..." className="flex-1" />

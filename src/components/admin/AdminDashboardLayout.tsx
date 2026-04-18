@@ -3,13 +3,14 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   LayoutDashboard, Store, Users, CreditCard, HeadphonesIcon,
-  UserCog, Activity, Menu, X, LogOut, ChevronDown, Mail, PlusCircle,
+  UserCog, Activity, Menu, X, LogOut, Mail, PlusCircle, BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", path: "/dukafy-admin", icon: LayoutDashboard, end: true },
+  { label: "Analytics", path: "/dukafy-admin/analytics", icon: BarChart3 },
   { label: "Shops", path: "/dukafy-admin/shops", icon: Store },
   { label: "Users", path: "/dukafy-admin/users", icon: Users },
   { label: "Subscriptions", path: "/dukafy-admin/subscriptions", icon: CreditCard },

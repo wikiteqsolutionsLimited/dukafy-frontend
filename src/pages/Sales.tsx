@@ -111,6 +111,63 @@ const SalesPage = () => {
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
 
+  // Hold sale + mobile cart drawer
+  const [showHeldDrawer, setShowHeldDrawer] = useState(false);
+  const [showMobileCart, setShowMobileCart] = useState(false);
+  const [holdNote, setHoldNote] = useState("");
+  const [showHoldModal, setShowHoldModal] = useState(false);
+
+  const { data: heldData, refetch: refetchHeld } = useQuery({
+    queryKey: ["held-sales"],
+    queryFn: async () => {
+      const res = await heldSalesApi.getAll();
+      return (res.data || []) as Array<{ id: number; reference: string; note?: string; total: number; items: any[]; created_at: string }>;
+    },
+  });
+  const heldSales = heldData || [];
+
+  const handleHoldSale = async () => {
+    if (cart.length === 0) return;
+    try {
+      await heldSalesApi.create({
+        note: holdNote || null,
+        total,
+        items: cart.map((c) => ({
+          product_id: c.product_id,
+          name: c.name,
+          price: c.price,
+          qty: c.qty,
+          vat_rate: c.vat_rate,
+          is_vat_inclusive: c.is_vat_inclusive,
+        })),
+      });
+      toast.success("Sale held");
+      setCart([]);
+      setActiveCartItem(null);
+      setHoldNote("");
+      setShowHoldModal(false);
+      refetchHeld();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to hold sale");
+    }
+  };
+
+  const handleResumeHeld = (h: any) => {
+    const items = (h.items || []).map((it: any) => ({
+      id: it.product_id || it.id,
+      product_id: it.product_id,
+      name: it.name,
+      price: Number(it.price),
+      qty: Number(it.qty),
+      vat_rate: Number(it.vat_rate ?? 16),
+      is_vat_inclusive: it.is_vat_inclusive !== false,
+    }));
+    setCart(items);
+    setShowHeldDrawer(false);
+    heldSalesApi.delete(h.id).then(() => refetchHeld()).catch(() => {});
+    toast.success("Sale resumed");
+  };
+
   // Fetch products from API
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ["pos-products"],

@@ -11,6 +11,7 @@ import { TableSkeleton } from "@/components/shared/TableSkeleton";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { PrimaryButton, Badge, FilterSelect, DeleteButton, RowActions } from "@/components/shared/ActionButtons";
 import { ConfirmModal } from "@/components/shared/Modal";
+import { ReceivePOModal } from "@/components/purchase-orders/ReceivePOModal";
 import { purchaseOrdersApi } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 
@@ -21,6 +22,8 @@ interface PurchaseOrder {
   total_amount: number;
   status: "pending" | "completed" | "cancelled";
   item_count: number;
+  total_qty_ordered?: number;
+  total_qty_received?: number;
   created_at: string;
 }
 
@@ -33,7 +36,7 @@ const PurchaseOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [deleteOrder, setDeleteOrder] = useState<PurchaseOrder | null>(null);
-  const [completeOrder, setCompleteOrder] = useState<PurchaseOrder | null>(null);
+  const [receiveOrder, setReceiveOrder] = useState<PurchaseOrder | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["purchase-orders", page, search, statusFilter],
@@ -57,21 +60,24 @@ const PurchaseOrdersPage = () => {
     onError: (err: any) => toast.error(err.message || "Failed to delete"),
   });
 
-  const completeMutation = useMutation({
-    mutationFn: (id: number) => purchaseOrdersApi.updateStatus(id, "completed", true),
-    onSuccess: () => {
-      toast.success("Order completed and stock received");
-      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      setCompleteOrder(null);
-    },
-    onError: (err: any) => toast.error(err.message || "Failed to complete"),
-  });
+  // Items column with received progress
 
   const columns: Column<PurchaseOrder>[] = [
     { key: "ref", header: "Reference", render: (o) => <span className="font-semibold text-primary">{o.reference}</span> },
     { key: "supplier", header: "Supplier", render: (o) => <span className="font-medium text-card-foreground">{o.supplier_name || "—"}</span> },
-    { key: "items", header: "Items", render: (o) => <span className="text-muted-foreground">{o.item_count} product{o.item_count !== 1 ? "s" : ""}</span> },
+    {
+      key: "items", header: "Items",
+      render: (o) => (
+        <div className="flex flex-col">
+          <span className="text-card-foreground">{o.item_count} product{o.item_count !== 1 ? "s" : ""}</span>
+          {(o.total_qty_ordered ?? 0) > 0 && (
+            <span className="text-[11px] text-muted-foreground">
+              {o.total_qty_received ?? 0} / {o.total_qty_ordered} received
+            </span>
+          )}
+        </div>
+      ),
+    },
     {
       key: "total", header: "Total", align: "right",
       render: (o) => <span className="font-semibold text-card-foreground">{formatCurrency(Number(o.total_amount))}</span>,
@@ -91,9 +97,9 @@ const PurchaseOrdersPage = () => {
         <RowActions>
           {o.status === "pending" && (
             <button
-              onClick={() => setCompleteOrder(o)}
+              onClick={() => setReceiveOrder(o)}
               className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-success transition-colors hover:bg-success/10"
-              title="Mark as received & add to stock"
+              title="Receive stock"
             >
               <Check className="h-4 w-4" />
             </button>
@@ -152,13 +158,15 @@ const PurchaseOrdersPage = () => {
         variant="danger"
       />
 
-      <ConfirmModal
-        open={!!completeOrder}
-        onClose={() => setCompleteOrder(null)}
-        onConfirm={() => completeOrder && completeMutation.mutate(completeOrder.id)}
-        title={`Mark ${completeOrder?.reference} as received?`}
-        description="This will mark the order as completed and ADD the ordered quantities to your product stock."
-        confirmLabel="Yes, receive stock"
+      <ReceivePOModal
+        open={!!receiveOrder}
+        orderId={receiveOrder?.id ?? null}
+        reference={receiveOrder?.reference}
+        onClose={() => setReceiveOrder(null)}
+        onCompleted={() => {
+          queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["products"] });
+        }}
       />
     </div>
   );
