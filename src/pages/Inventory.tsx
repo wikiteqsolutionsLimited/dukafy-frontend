@@ -30,6 +30,9 @@ interface Product {
   quantity: number;
   low_stock_threshold: number;
   image_url: string;
+  unit?: string;
+  vat_rate?: number;
+  is_vat_inclusive?: boolean;
 }
 
 const PAGE_SIZE = 10;
@@ -97,7 +100,7 @@ const InventoryPage = () => {
   const columns: Column<Product>[] = [
     { key: "name", header: "Product Name", render: (p) => <span className="font-medium text-card-foreground">{p.name}</span> },
     { key: "category_name", header: "Category", render: (p) => <Badge>{p.category_name || "—"}</Badge> },
-    { key: "quantity", header: "Stock", render: (p) => stockBadge(p.quantity, p.low_stock_threshold) },
+    { key: "quantity", header: "Stock", render: (p) => <span className="inline-flex items-center gap-1.5">{stockBadge(Number(p.quantity), Number(p.low_stock_threshold))} <span className="text-[10px] text-muted-foreground">{p.unit || "pcs"}</span></span> },
     { key: "buy_price", header: "Buying Price", render: (p) => <span className="text-muted-foreground">{formatCurrency(p.buy_price)}</span> },
     { key: "sell_price", header: "Selling Price", render: (p) => <span className="font-semibold text-card-foreground">{formatCurrency(p.sell_price)}</span> },
     {
@@ -199,32 +202,36 @@ const InventoryPage = () => {
         onClose={() => setModalOpen(false)}
         mode={editProduct ? "edit" : "add"}
         initialData={editProduct ? {
-          name: editProduct.name, category: editProduct.category_name || "",
+          name: editProduct.name, category: String(editProduct.category_id || ""),
           quantity: String(editProduct.quantity), buyPrice: String(editProduct.buy_price),
-          sellPrice: String(editProduct.sell_price), supplier: "",
+          sellPrice: String(editProduct.sell_price), supplier: String(editProduct.supplier_id || ""),
+          unit: editProduct.unit || "pcs",
+          vat_rate: String(editProduct.vat_rate ?? 16),
+          is_vat_inclusive: editProduct.is_vat_inclusive !== false,
         } : undefined}
         onSave={(formData) => {
           setModalOpen(false);
-          if (editProduct) {
-            productsApi.update(editProduct.id, {
-              name: formData.name, barcode: editProduct.barcode,
-              category_id: editProduct.category_id, supplier_id: editProduct.supplier_id,
-              buy_price: parseFloat(formData.buyPrice), sell_price: parseFloat(formData.sellPrice),
-              quantity: parseInt(formData.quantity), low_stock_threshold: editProduct.low_stock_threshold,
-              image_url: editProduct.image_url,
-            }).then(() => {
-              toast.success(`"${formData.name}" updated`);
-              queryClient.invalidateQueries({ queryKey: ["products"] });
-            }).catch((err) => toast.error(err.message));
-          } else {
-            productsApi.create({
-              name: formData.name, buy_price: parseFloat(formData.buyPrice),
-              sell_price: parseFloat(formData.sellPrice), quantity: parseInt(formData.quantity),
-            }).then(() => {
-              toast.success(`"${formData.name}" added`);
-              queryClient.invalidateQueries({ queryKey: ["products"] });
-            }).catch((err) => toast.error(err.message));
-          }
+          const payload = {
+            name: formData.name,
+            barcode: editProduct?.barcode,
+            category_id: formData.category_id ?? editProduct?.category_id,
+            supplier_id: formData.supplier_id ?? editProduct?.supplier_id,
+            buy_price: parseFloat(formData.buyPrice),
+            sell_price: parseFloat(formData.sellPrice),
+            quantity: parseFloat(formData.quantity),
+            low_stock_threshold: editProduct?.low_stock_threshold ?? 10,
+            image_url: editProduct?.image_url,
+            unit: formData.unit || "pcs",
+            vat_rate: parseFloat(formData.vat_rate),
+            is_vat_inclusive: formData.is_vat_inclusive,
+          };
+          const call = editProduct
+            ? productsApi.update(editProduct.id, payload)
+            : productsApi.create(payload);
+          call.then(() => {
+            toast.success(editProduct ? `"${formData.name}" updated` : `"${formData.name}" added`);
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+          }).catch((err) => toast.error(err.message));
         }}
       />
 

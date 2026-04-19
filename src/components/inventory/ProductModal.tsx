@@ -19,6 +19,7 @@ export interface ProductFormData {
   supplier_id?: number;
   vat_rate: string;
   is_vat_inclusive: boolean;
+  unit: string;
 }
 
 interface ProductModalProps {
@@ -31,8 +32,22 @@ interface ProductModalProps {
 
 const emptyForm: ProductFormData = {
   name: "", category: "", quantity: "", buyPrice: "", sellPrice: "", supplier: "", image: null,
-  vat_rate: "16", is_vat_inclusive: true,
+  vat_rate: "16", is_vat_inclusive: true, unit: "pcs",
 };
+
+export const PRODUCT_UNITS: { label: string; value: string }[] = [
+  { label: "Piece (pcs)", value: "pcs" },
+  { label: "Kilogram (kg)", value: "kg" },
+  { label: "Gram (g)", value: "g" },
+  { label: "Litre (l)", value: "l" },
+  { label: "Millilitre (ml)", value: "ml" },
+  { label: "Box", value: "box" },
+  { label: "Pack", value: "pack" },
+  { label: "Bottle", value: "bottle" },
+  { label: "Dozen", value: "dozen" },
+  { label: "Carton", value: "carton" },
+  { label: "Other", value: "other" },
+];
 
 export function ProductModal({ open, onClose, onSave, initialData, mode = "add" }: ProductModalProps) {
   const [form, setForm] = useState<ProductFormData>(emptyForm);
@@ -103,7 +118,7 @@ export function ProductModal({ open, onClose, onSave, initialData, mode = "add" 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) onSave({ ...form, category_id: parseInt(form.category), supplier_id: parseInt(form.supplier) });
+      if (validate()) onSave({ ...form, category_id: parseInt(form.category), supplier_id: parseInt(form.supplier), unit: form.unit || "pcs" });
   };
 
   return (
@@ -115,8 +130,9 @@ export function ProductModal({ open, onClose, onSave, initialData, mode = "add" 
           <FormSelect label="Category" value={form.category} onChange={(v) => update("category", v)} options={categoryOptions} placeholder="Select category" error={errors.category} required />
           <FormSelect label="Supplier" value={form.supplier} onChange={(v) => update("supplier", v)} options={supplierOptions} placeholder="Select supplier" error={errors.supplier} required />
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <FormInput label="Quantity" type="number" min="0" value={form.quantity} onChange={(e) => update("quantity", e.target.value)} placeholder="0" error={errors.quantity} required />
+        <div className="grid gap-4 sm:grid-cols-4">
+          <FormSelect label="Unit" value={form.unit} onChange={(v) => update("unit", v)} options={PRODUCT_UNITS} placeholder="Select unit" />
+          <FormInput label="Quantity" type="number" min="0" step="any" value={form.quantity} onChange={(e) => update("quantity", e.target.value)} placeholder="0" error={errors.quantity} required />
           <FormInput label="Buying Price (KES)" type="number" min="0" step="0.01" value={form.buyPrice} onChange={(e) => update("buyPrice", e.target.value)} placeholder="0.00" error={errors.buyPrice} required />
           <FormInput label="Selling Price (KES)" type="number" min="0" step="0.01" value={form.sellPrice} onChange={(e) => update("sellPrice", e.target.value)} placeholder="0.00" error={errors.sellPrice} required />
         </div>

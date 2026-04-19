@@ -730,17 +730,53 @@ const SalesPage = () => {
           )}
         </div>
 
-        {/* Cart panel */}
-        <div className="lg:col-span-2">
-          <div className="sticky top-20 rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
+        {/* Cart panel — slides in from right on mobile when toggled */}
+        <div
+          className={cn(
+            "lg:col-span-2 lg:static lg:block lg:bg-transparent",
+            showMobileCart
+              ? "fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-y-auto p-3"
+              : "hidden lg:block",
+          )}
+        >
+          <div className="rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md lg:sticky lg:top-20">
             <div className="flex items-center gap-2 border-b px-5 py-4">
               <ShoppingBag className="h-5 w-5 text-primary" />
               <h2 className="text-base font-semibold text-card-foreground">
                 Cart
               </h2>
-              <span className="ml-auto rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-accent-foreground">
+              <span className="ml-2 rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-accent-foreground">
                 {itemCount} {itemCount === 1 ? "item" : "items"}
               </span>
+              <div className="ml-auto flex items-center gap-1.5">
+                <button
+                  onClick={() => setShowHeldDrawer(true)}
+                  className="relative rounded-md border bg-card px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent"
+                  title="Held sales"
+                >
+                  Held
+                  {heldSales.length > 0 && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-warning px-1 text-[9px] font-bold text-warning-foreground">
+                      {heldSales.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowHoldModal(true)}
+                  disabled={cart.length === 0}
+                  className="rounded-md bg-warning/10 px-2.5 py-1 text-[11px] font-semibold text-warning transition-colors hover:bg-warning/20 disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="Hold current sale"
+                >
+                  Hold
+                </button>
+                <button
+                  onClick={() => setShowMobileCart(false)}
+                  className="lg:hidden rounded-md border px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-accent"
+                  title="Close cart"
+                >
+                  ×
+                </button>
+              </div>
             </div>
 
             {/* Customer Selection */}
@@ -1046,6 +1082,134 @@ const SalesPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile sticky cart bar — only visible on small screens when cart has items and overlay is closed */}
+      {cart.length > 0 && !showMobileCart && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-card shadow-lg lg:hidden">
+          <button
+            onClick={() => setShowMobileCart(true)}
+            className="flex w-full items-center gap-3 px-4 py-3"
+          >
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+              <ShoppingBag className="h-5 w-5 text-primary" />
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                {itemCount}
+              </span>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-[11px] text-muted-foreground">View cart</p>
+              <p className="text-sm font-bold text-card-foreground">
+                {formatCurrency(total)}
+              </p>
+            </div>
+            <span className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">
+              Checkout →
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Hold Note Modal */}
+      <Modal
+        open={showHoldModal}
+        onClose={() => setShowHoldModal(false)}
+        title="Hold This Sale"
+        size="sm"
+        footer={
+          <>
+            <button
+              onClick={() => setShowHoldModal(false)}
+              className="h-10 flex-1 rounded-xl border text-sm font-medium text-muted-foreground hover:bg-muted"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleHoldSale}
+              className="h-10 flex-1 rounded-xl bg-warning text-sm font-bold text-warning-foreground hover:bg-warning/90"
+            >
+              Hold Sale
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-3 py-2">
+          <p className="text-sm text-muted-foreground">
+            Park this cart so you can resume it later. {itemCount} items —{" "}
+            <strong className="text-foreground">{formatCurrency(total)}</strong>
+          </p>
+          <FormInput
+            label="Note (optional)"
+            value={holdNote}
+            onChange={(e) => setHoldNote(e.target.value)}
+            placeholder="e.g. Customer at counter 2"
+          />
+        </div>
+      </Modal>
+
+      {/* Held Sales Drawer */}
+      <Modal
+        open={showHeldDrawer}
+        onClose={() => setShowHeldDrawer(false)}
+        title={`Held Sales (${heldSales.length})`}
+        size="md"
+      >
+        <div className="space-y-2 py-2 max-h-[60vh] overflow-y-auto">
+          {heldSales.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-12 text-center">
+              <Clock className="h-10 w-10 text-muted-foreground/30" />
+              <p className="text-sm font-medium text-muted-foreground">
+                No held sales
+              </p>
+              <p className="text-xs text-muted-foreground/70">
+                Click "Hold" in the cart to park a sale for later.
+              </p>
+            </div>
+          ) : (
+            heldSales.map((h) => (
+              <div
+                key={h.id}
+                className="flex items-center gap-3 rounded-xl border bg-card p-3 hover:border-primary/30 transition-colors"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10">
+                  <Clock className="h-5 w-5 text-warning" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-card-foreground truncate">
+                    {h.reference || `Held #${h.id}`}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {(h.items?.length || 0)} items · {formatCurrency(Number(h.total) || 0)}
+                    {h.note ? ` · ${h.note}` : ""}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/70">
+                    {new Date(h.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleResumeHeld(h)}
+                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90"
+                >
+                  Resume
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await heldSalesApi.delete(h.id);
+                      refetchHeld();
+                      toast.success("Held sale removed");
+                    } catch {
+                      toast.error("Failed to remove");
+                    }
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </Modal>
 
       {/* Cash Change Modal */}
       <Modal

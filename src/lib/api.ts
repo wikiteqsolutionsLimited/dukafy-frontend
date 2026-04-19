@@ -263,13 +263,19 @@ export const auditLogsApi = {
 
 // ── M-Pesa API ──
 export const mpesaApi = {
-  stkPush: (data: { phone: string; amount: number; accountReference?: string }) => api.post("/mpesa/stk-push", data),
-  stkQuery: (checkoutRequestID: string) => api.post("/mpesa/stk-query", { checkoutRequestID }),
+  stkPush: (data: {
+    phone: string;
+    amount: number;
+    accountReference?: string;
+  }) => api.post("/mpesa/stk-push", data),
+  stkQuery: (checkoutRequestID: string) =>
+    api.post("/mpesa/stk-query", { checkoutRequestID }),
 };
 
 // ── Notifications API ──
 export const notificationsApi = {
-  getAll: (params?: { page?: number; limit?: number; unread_only?: string }) => api.get("/notifications", params),
+  getAll: (params?: { page?: number; limit?: number; unread_only?: string }) =>
+    api.get("/notifications", params),
   getUnreadCount: () => api.get("/notifications/unread-count"),
   markRead: (id: number) => api.patch(`/notifications/${id}/read`),
   markAllRead: () => api.patch("/notifications/read-all"),
@@ -278,7 +284,8 @@ export const notificationsApi = {
 
 // ── Admin Analytics API ──
 export const adminAnalyticsApi = {
-  get: (range: "7d" | "30d" | "90d" | "1y" = "30d") => api.get("/admin/analytics", { range }),
+  get: (range: "7d" | "30d" | "90d" | "1y" = "30d") =>
+    api.get("/admin/analytics", { range }),
 };
 
 // ── Shop Settings API ──
@@ -294,9 +301,12 @@ export const shopsApi = {
   create: (data: any) => api.post("/shops", data),
   update: (id: number, data: any) => api.put(`/shops/${id}`, data),
   getMembers: (id: number) => api.get(`/shops/${id}/members`),
-  addMember: (id: number, user_id: number, role: string) => api.post(`/shops/${id}/members`, { user_id, role }),
-  removeMember: (shopId: number, userId: number) => api.delete(`/shops/${shopId}/members/${userId}`),
-  inviteMember: (id: number, data: { email: string; role: string }) => api.post(`/shops/${id}/invite`, data),
+  addMember: (id: number, user_id: number, role: string) =>
+    api.post(`/shops/${id}/members`, { user_id, role }),
+  removeMember: (shopId: number, userId: number) =>
+    api.delete(`/shops/${shopId}/members/${userId}`),
+  inviteMember: (id: number, data: { email: string; role: string }) =>
+    api.post(`/shops/${id}/invite`, data),
 };
 
 // ── Subscriptions API ──
@@ -304,22 +314,34 @@ export const subscriptionsApi = {
   getMy: () => api.get("/subscriptions/me"),
   getPlans: () => api.get("/subscriptions/plans"),
   renew: (plan_id: string) => api.post("/subscriptions/renew", { plan_id }),
-  initiatePayment: (data: { plan_id: string; phone: string }) => api.post("/subscriptions/initiate-payment", data),
-  confirmPayment: (data: { checkout_request_id: string; plan_id: string }) => api.post("/subscriptions/confirm-payment", data),
+  initiatePayment: (data: { plan_id: string; phone: string }) =>
+    api.post("/subscriptions/initiate-payment", data),
+  confirmPayment: (data: { checkout_request_id: string; plan_id: string }) =>
+    api.post("/subscriptions/confirm-payment", data),
 };
 
 // ── Support Tickets API (Shop owner side) ──
 export const supportTicketsApi = {
   getAll: () => api.get("/support-tickets"),
   getById: (id: number) => api.get(`/support-tickets/${id}`),
-  create: (data: { subject: string; message: string; category?: string; priority?: string }) => api.post("/support-tickets", data),
-  reply: (id: number, message: string) => api.post(`/support-tickets/${id}/reply`, { message }),
+  create: (data: {
+    subject: string;
+    message: string;
+    category?: string;
+    priority?: string;
+  }) => api.post("/support-tickets", data),
+  reply: (id: number, message: string) =>
+    api.post(`/support-tickets/${id}/reply`, { message }),
 };
 
 // ── Stock Adjustments API ──
 export const stockAdjustmentsApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string; reason?: string }) =>
-    api.get("/stock-adjustments", params),
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    reason?: string;
+  }) => api.get("/stock-adjustments", params),
   create: (data: { product_id: number; new_qty: number; reason: string }) =>
     api.post("/stock-adjustments", data),
   delete: (id: number) => api.delete(`/stock-adjustments/${id}`),
@@ -327,12 +349,21 @@ export const stockAdjustmentsApi = {
 
 // ── Purchase Orders API ──
 export const purchaseOrdersApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string; status?: string }) =>
-    api.get("/purchase-orders", params),
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+  }) => api.get("/purchase-orders", params),
   getById: (id: number) => api.get(`/purchase-orders/${id}`),
   create: (data: {
     supplier_id?: number;
-    items: Array<{ product_id?: number; product_name: string; quantity: number; unit_price: number }>;
+    items: Array<{
+      product_id?: number;
+      product_name: string;
+      quantity: number;
+      unit_price: number;
+    }>;
     notes?: string;
     status?: string;
   }) => api.post("/purchase-orders", data),
@@ -351,12 +382,38 @@ export const purchaseOrdersApi = {
 
 // ── Payments API ──
 export const paymentsApi = {
-  list: (params?: { page?: number; limit?: number; method?: string; status?: string; from?: string; to?: string }) =>
-    api.get("/payments", params),
+  list: (params?: {
+    page?: number;
+    limit?: number;
+    method?: string;
+    status?: string;
+    from?: string;
+    to?: string;
+  }) => api.get("/payments", params),
   summary: () => api.get("/payments/summary"),
 };
 
 // ── M-Pesa Test ──
 export const mpesaTestApi = {
   test: () => api.post("/mpesa/test-credentials"),
+};
+
+// ── Receivables / Credit Sales ──
+export const receivablesApi = {
+  summary: () => api.get("/receivables"),
+  customer: (customer_id: number) =>
+    api.get(`/receivables/customer/${customer_id}`),
+  recordRepayment: (data: {
+    customer_id: number;
+    amount: number;
+    method?: string;
+    reference?: string;
+    notes?: string;
+    sale_id?: number;
+  }) => api.post("/receivables/repayments", data),
+  listRepayments: (params?: {
+    customer_id?: number;
+    page?: number;
+    limit?: number;
+  }) => api.get("/receivables/repayments", params),
 };
